@@ -1,0 +1,66 @@
+.campaign {
+  display: flex;
+  margin-bottom: 40px;
+  cursor: pointer;
+}
+
+.indicator {
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  background-color: var(--purple);
+  margin-right: 15px;
+  margin-bottom: 25px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.complete {
+  background-color: var(--green);
+}
+
+.done {
+  font-size: 28px;
+}
+
+.number {
+  font-family: Gilroy;
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.info {
+  border-bottom: 1px solid #e2dfe5;
+  display: flex;
+  flex: 1;
+  padding-bottom: 20px;
+}
+
+.info span {
+  display: block;
+}
+
+.mainInfo {
+  flex: 1;
+}
+
+.name {
+  font-family: Gilroy;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--purple);
+}
+
+.description {
+  color: var(--lightPurple);
+  font-size: 16px;
+}
+
+.arrow {
+  margin-top: 25px;
+  font-size: 20px;
+  color: var(--purple);
+  margin-left: 120px;
+}

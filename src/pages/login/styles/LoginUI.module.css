@@ -1,0 +1,180 @@
+.login {
+  background-color: var(--purple);
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sideWrap {
+  height: 100vh;
+}
+
+.sideWrap :global(.ant-row) {
+  height: 50%;
+}
+
+.side {
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottomSide {
+  background-color: var(--secondPurple);
+}
+
+.rightSide {
+  background-color: var(--pink);
+}
+
+.square {
+  width: 100%;
+  height: 100%;
+}
+
+.squarePink {
+  position: absolute;
+  width: 80%;
+  top: 0;
+  aspect-ratio: 1.24;
+}
+
+.squareYellow {
+  position: absolute;
+  width: 20%;
+  left: 0;
+  bottom: 30px;
+  aspect-ratio: 0.41;
+}
+
+.squarePurple {
+  position: absolute;
+  width: 75%;
+  aspect-ratio: 1.44;
+  right: 20px;
+  margin-top: -40px;
+}
+
+.squareBlue {
+  position: absolute;
+  width: 30%;
+  aspect-ratio: 1.85;
+  left: 0;
+}
+
+.squareOrange {
+  position: absolute;
+  width: 12%;
+  aspect-ratio: 1.12;
+  bottom: 20px;
+  left: 80px;
+}
+
+.squarePink2 {
+  position: absolute;
+  width: 35%;
+  aspect-ratio: 0.68;
+  bottom: -50%;
+  margin-left: 60px;
+}
+
+.squarePurple2 {
+  position: absolute;
+  width: 25%;
+  aspect-ratio: 1.32;
+  top: 40px;
+}
+
+.squareLightPurple {
+  position: absolute;
+  width: 32%;
+  aspect-ratio: 1.59;
+  top: -25px;
+  right: -40px;
+}
+
+.squareYellow2 {
+  position: absolute;
+  width: 32%;
+  aspect-ratio: 1.88;
+  bottom: 25px;
+  right: -40px;
+}
+
+.formWrap {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.form {
+  max-width: 500px;
+}
+
+.logo {
+  width: 120px;
+}
+
+.description {
+  display: block;
+  color: white;
+  font-size: 20px;
+  font-weight: 400;
+  margin-bottom: 25px;
+  margin-top: 5px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--lightPurple);
+}
+
+.input {
+  background-color: #4a2790;
+  color: white;
+  border: none;
+  font-weight: 500;
+  height: 55px;
+}
+
+.input input {
+  color: white;
+  font-weight: 500;
+  background-color: transparent;
+}
+
+.input :global(.ant-input-suffix) svg {
+  color: white;
+}
+
+.submit {
+  background-color: var(--pink);
+  border-color: var(--pink);
+  height: 55px;
+  margin-top: 20px;
+  font-weight: 700;
+}
+
+.submit:hover,
+.submit:focus {
+  background-color: rgba(213, 54, 120, 0.8);
+  border-color: rgba(213, 54, 120, 0.8);
+}
+
+.social {
+  margin-top: 60px;
+}
+
+.social svg {
+  color: var(--lightPurple);
+  width: 30px;
+}
+
+.social svg:first-child {
+  margin-right: 20px;
+}
