@@ -1,0 +1,127 @@
+.editor {
+  padding: 30px 40px;
+  background-color: var(--background);
+  height: calc(100vh - 78.45px);
+  overflow-y: scroll;
+}
+
+.title {
+  color: var(--purple);
+  font-family: Gilroy;
+  font-weight: 700;
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+
+.label {
+  color: var(--secondPurple);
+}
+
+.versionLabel {
+  text-align: right;
+  width: 80px;
+}
+
+.input {
+  color: var(--secondPurple);
+  border: none;
+  height: 45px;
+}
+
+.textArea {
+  color: var(--secondPurple);
+  border: none;
+}
+
+.addImage {
+  height: 45px;
+  margin-left: 20px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+}
+
+.addImage :global(.material-icons-round) {
+  font-size: 18px;
+  margin-left: 10px;
+}
+
+.addImageWrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.previewImage {
+  height: 270px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e2e5ea;
+  background-color: white;
+  border: 1px dashed var(--lightPurple);
+  margin-top: 10px;
+}
+
+.previewImage :global(.material-icons-round) {
+  font-size: 60px;
+}
+
+.imageWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 40px;
+  margin-top: 20px;
+}
+
+.image {
+  max-width: 100%;
+}
+
+.feedbackWrap {
+  margin-top: 20px;
+  display: flex;
+  align-items: flex-start;
+  color: var(--purple);
+}
+
+.feedbackIcon {
+  margin-top: -7px;
+  margin-right: 10px;
+}
+
+.image {
+  position: relative;
+}
+
+.draw {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+}
+
+.boxes {
+  fill: blue;
+  stroke: white;
+  stroke-width: 1;
+  fill-opacity: 0.5;
+  stroke-opacity: 0.9;
+  z-index: 2;
+}
+.marquee {
+  fill: white;
+  stroke: red;
+  stroke-width: 1;
+  stroke-dasharray: 5, 5;
+  stroke-opacity: 0.9;
+  fill-opacity: 0.2;
+  z-index: 2;
+}

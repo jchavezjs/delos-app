@@ -1,6 +1,7 @@
 import {useNavigate} from 'react-router-dom';
 import {Row, Col, Dropdown, Menu, Input, Button} from 'antd';
 import Campaign from './Campaign';
+import Editor from './Editor';
 import {ReactComponent as Logo} from '../../../assets/logos/logo-purple.svg';
 import styles from '../styles/DashboardUI.module.css';
 
@@ -66,10 +67,8 @@ const DashboardUI = ({campaigns}) => {
             </div>
           </div>
         </Col>
-        <Col span={12}>
-          <div className={styles.editor}>
-            <h1 className={styles.title}>New Campaign</h1>
-          </div>
+        <Col span={12} className={styles.editor}>
+          <Editor />
         </Col>
       </Row>
     </div>

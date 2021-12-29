@@ -106,9 +106,3 @@
   background-color: rgba(213, 54, 120, 0.8);
   border-color: rgba(213, 54, 120, 0.8);
 }
-
-.editor {
-  padding: 30px 40px;
-  background-color: var(--background);
-  height: 100%;
-}
