@@ -1,12 +1,10 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import {Form, Input, Button, Row, Col, Upload, message} from 'antd';
 import cx from 'classnames';
-import produce from 'immer';
 import {ReactComponent as Feedback} from '../assets/feedback.svg';
 import styles from '../styles/Editor.module.css';
 
 const {TextArea} = Input;
-const rectangles = [];
 // Temp variables
 let startX = 0;
 let startY = 0;
@@ -17,162 +15,134 @@ const marqueeRect = {
   height: 0,
   name: '',
   id: 0,
-  class: 'yellow',
+  style: '',
 };
 
-var addid = 0;
+const colors = ['#3C138E', '#ABA1C0', '#FFC400', '#D53678'];
+
+const useForceUpdate = () => {
+  const [, setState] = useState();
+  return () => setState({});
+}
 
 const Editor = () => {
-  const [inputs, handleInputs] = useState([]);
+  const rectangles = useRef([]);
+  const addid = useRef(0);
   const [image, hanldeImage] = useState('');
+  const screenshot = useRef(null);
+  const marquee = useRef(null);
+  const boxes = useRef(null);
+  const forceUpdate = useForceUpdate();
 
   useEffect(() => {
-    const $ = document.querySelector.bind(document);
-
-    /**
-     * Collection of rectangles defining user generated regions
-     */
-
-    // DOM elements
-    const $screenshot = $('#screenshot');
-    const $draw = $('#draw');
-    const $marquee = $('#marquee');
-    const $boxes = $('#boxes');
-    $marquee.classList.add('hide');
-    $screenshot.addEventListener('pointerdown', startDrag);
-
-    // Add Input
-
-    function addInput(id) {
-        
-        var addList = document.getElementById('addlist');
-
-        if (!id) {
-            id = addid;
-        }
-
-        var text = document.createElement('div');
-        text.id = 'additem_' + id;
-        // text.innerHTML = "<input placeholder='" + id + "' id='i_" + id + "' type='text' value='' class='buckinput' name='items[]' onChange='renameInput("+ id +")' style='padding:5px;' /> <a href='javascript:void(0);' onclick='removeInput(" + id + ")' id='addlink_" + id + "'>Remove</a>";
-        text.innerHTML = "<input placeholder='" + id + "' id='i_" + id + "' type='text' value='' class='buckinput' name='items[]' onChange='renameInput("+ id +")' style='padding:5px;' />";
-
-        addid++;
-        addList.appendChild(text);
-    }
-
-    function removeInput(id) {
-        var text = document.createElement('div');
-        var item = document.getElementById(`additem_${id}`);
-
-        var addList = document.getElementById('addlist');
-
-        var rmv = addList.removeChild(item);
-    }
-
-    /* function renameInput(id) {
-        var text = document.createElement('div');
-        var item = document.getElementById(`i_${id}`);
-        var new_name = item.value.toLowerCase();
-
-        item.setAttribute("name", new_name);
-
-        console.log(item);
-    } */
-
-    //
-
-    function startDrag(ev) {
-      // middle button delete rect
-      if (ev.button === 2) {
-        const rect = hitTest(ev.layerX, ev.layerY);
-        if (rect) {
-          // removeInput(rect.id);
-          rectangles.splice(rectangles.indexOf(rect), 1);
-          // handleInputs(rectangles);
-          redraw();
-        }
-        return;
-      }
-      window.addEventListener('pointerup', stopDrag);
-      $screenshot.addEventListener('pointermove', moveDrag);
-      $marquee.classList.remove('hide');
-      startX = ev.layerX;
-      startY = ev.layerY;
-    }
-
-    function stopDrag(ev) {
-        $marquee.classList.add('hide');
-        window.removeEventListener('pointerup', stopDrag);
-        $screenshot.removeEventListener('pointermove', moveDrag);
-        /* if (ev.target === $screenshot && marqueeRect.width && marqueeRect.height) {
-          // Assign ID to rectangle
-          marqueeRect.id = addid;
-          rectangles.push(Object.assign({}, marqueeRect));
-          // Add Input
-          // addInput();
-  
-          // Re Draw Rectangles
-          redraw();
-        } */
-
-        // Assign ID to rectangle
-        marqueeRect.id = addid;
-        const newRectangle = Object.assign({}, marqueeRect);
-        rectangles.push(newRectangle);
-        handleInputs(rectangles);
-        // Add Input
-        // addInput();
-
-        // Re Draw Rectangles
-        redraw();
-        
-    }
-
-    function moveDrag(ev) {
-      let x = ev.layerX;
-      let y = ev.layerY;
-      let width = startX - x;
-      let height = startY - y;
-      if (width < 0) {
-        width *= -1;
-        x -= width; 
-      }
-      if (height < 0) {
-        height *= -1;
-        y -= height;
-      }
-      Object.assign(marqueeRect, { x, y, width, height });
-      drawRect($marquee, marqueeRect);
-    }
-
-    function hitTest(x, y) {
-      return rectangles.find(rect => (
-        x >= rect.x &&
-        y >= rect.y && 
-        x <= rect.x + rect.width &&
-        y <= rect.y + rect.height
-      ));
-    }
-
-    function redraw() {
-      $boxes.innerHTML = '';
-      rectangles.forEach((data) => {
-            $boxes.appendChild(drawRect(
-                document.createElementNS("http://www.w3.org/2000/svg", 'rect'), data
-            ));
-        });
-    }
-  
-    function drawRect(rect, data) {
-      const { x, y, width, height } = data; //
-      rect.setAttributeNS(null, 'width', width);
-      rect.setAttributeNS(null, 'height', height);
-      rect.setAttributeNS(null, 'x', x);
-      rect.setAttributeNS(null, 'y', y);
-      return rect;
-    }
-
+    marquee.current.classList.add('hide');
+    screenshot.current.addEventListener('pointerdown', startDrag);
   }, []);
+
+  function addInput(id) {
+        
+    var addList = document.getElementById('addlist');
+
+    if (!id) {
+        id = addid.current;
+    }
+
+    var text = document.createElement('div');
+    text.id = 'additem_' + id;
+    // text.innerHTML = "<input placeholder='" + id + "' id='i_" + id + "' type='text' value='' class='buckinput' name='items[]' onChange='renameInput("+ id +")' style='padding:5px;' /> <a href='javascript:void(0);' onclick='removeInput(" + id + ")' id='addlink_" + id + "'>Remove</a>";
+    text.innerHTML = "<input placeholder='" + id + "' id='i_" + id + "' type='text' value='' class='buckinput' name='items[]' onChange='renameInput("+ id +")' style='padding:5px;' />";
+
+    addid.current++;
+    addList.appendChild(text);
+  }
+
+  function removeInput(id) {
+    var text = document.createElement('div');
+    var item = document.getElementById(`additem_${id}`);
+
+    var addList = document.getElementById('addlist');
+
+    var rmv = addList.removeChild(item);
+  }
+
+  function startDrag(ev) {
+    if (ev.button === 2) {
+      const rect = hitTest(ev.layerX, ev.layerY);
+      if (rect) {
+        // removeInput(rect.id);
+        rectangles.current.splice(rectangles.current.indexOf(rect), 1);
+        // handleInputs(rectangles);
+        redraw();
+        forceUpdate();
+      }
+      return;
+    }
+    window.addEventListener('pointerup', stopDrag);
+    screenshot.current.addEventListener('pointermove', moveDrag);
+    marquee.current.classList.remove('hide');
+    startX = ev.layerX;
+    startY = ev.layerY;
+  }
+
+  function stopDrag(ev) {
+      marquee.current.classList.add('hide');
+      window.removeEventListener('pointerup', stopDrag);
+      screenshot.current.removeEventListener('pointermove', moveDrag);
+      marqueeRect.id = addid.current;
+      marqueeRect.color = colors[addid.current]
+      const newRectangle = Object.assign({}, marqueeRect);
+      rectangles.current.push(newRectangle);
+      // Add Input
+      // addInput();
+      redraw();
+      forceUpdate();
+      addid.current++;
+  }
+
+  function moveDrag(ev) {
+    let x = ev.layerX;
+    let y = ev.layerY;
+    let width = startX - x;
+    let height = startY - y;
+    if (width < 0) {
+      width *= -1;
+      x -= width; 
+    }
+    if (height < 0) {
+      height *= -1;
+      y -= height;
+    }
+    Object.assign(marqueeRect, { x, y, width, height });
+    drawRect(marquee.current, marqueeRect);
+  }
+
+  function hitTest(x, y) {
+    return rectangles.current.find(rect => (
+      x >= rect.x &&
+      y >= rect.y && 
+      x <= rect.x + rect.width &&
+      y <= rect.y + rect.height
+    ));
+  }
+
+  function redraw() {
+    boxes.current.innerHTML = '';
+    rectangles.current.forEach((data) => {
+      boxes.current.appendChild(drawRect(
+        document.createElementNS("http://www.w3.org/2000/svg", 'rect'), data
+      ));
+    });
+  }
+
+  function drawRect(rect, data) {
+    const { x, y, width, height, color } = data; //
+    rect.setAttributeNS(null, 'width', width);
+    rect.setAttributeNS(null, 'height', height);
+    rect.setAttributeNS(null, 'x', x);
+    rect.setAttributeNS(null, 'y', y);
+    rect.setAttributeNS(null, 'style', `fill:${color}`);
+    return rect;
+  }
 
   function beforeUpload(file) {
     const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
@@ -206,9 +176,9 @@ const Editor = () => {
     }, 0);
   };
 
-  const InputImage = () => (
+  const InputImage = ({input}) => (
     <div className={styles.inputImage}>
-      <div />
+      <div className={styles.colorPreview} style={{backgroundColor: input.color}} />
       <Input size="large" className={styles.input} />
     </div>
   );
@@ -323,11 +293,11 @@ const Editor = () => {
                 </div>
               ) */}
               <div className={styles.imageWrapper}>
-                  <div className={styles.image} id="screenshot">
+                  <div className={styles.image} id="screenshot" ref={screenshot}>
                     <img src={image} alt="" draggable={false} />
                     <svg id="draw" className={styles.draw} xmlns="http://www.w3.org/2000/svg">
-                      <rect id="marquee" className={styles.marquee} x="0" y="0" width="0" height="0" />
-                      <g id="boxes" className={styles.boxes}></g>
+                      <rect id="marquee" ref={marquee} className={styles.marquee} x="0" y="0" width="0" height="0" />
+                      <g id="boxes" ref={boxes} className={styles.boxes}></g>
                     </svg>
                   </div>
                 </div>
@@ -343,8 +313,8 @@ const Editor = () => {
           <Row>
             <Col span={24}>
               <div className={styles.inputs}>
-                {inputs.map(input => (
-                  <InputImage input={input} />
+                {rectangles.current.map(input => (
+                  <InputImage key={Math.random()} input={input} />
                 ))}
               </div>
             </Col>
