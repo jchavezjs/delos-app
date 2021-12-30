@@ -4,6 +4,8 @@ import {
   Routes,
   Route,
 } from 'react-router-dom';
+import {store} from './redux/store';
+import {Provider} from 'react-redux';
 import ReactDOM from 'react-dom';
 import './index.less';
 import Dashboard from './pages/dashboard/Main';
@@ -12,12 +14,14 @@ import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <Router>
-      <Routes>
-        <Route path="/*" element={<Dashboard />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <Routes>
+          <Route path="/*" element={<Dashboard />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </Router>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

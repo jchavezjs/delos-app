@@ -1,5 +1,6 @@
 import {useState, useEffect, useRef} from 'react';
-import {Form, Input, Button, Row, Col, Upload, message} from 'antd';
+import {Form, Input, Button, Row, Col, Upload, message, Modal} from 'antd';
+import {useScreenshot} from 'use-react-screenshot';
 import cx from 'classnames';
 import {ReactComponent as Feedback} from '../assets/feedback.svg';
 import styles from '../styles/Editor.module.css';
@@ -14,11 +15,9 @@ const marqueeRect = {
   width: 0,
   height: 0,
   name: '',
-  id: 0,
-  style: '',
 };
 
-const colors = ['#3C138E', '#ABA1C0', '#FFC400', '#D53678'];
+const colors = ['#3C138E', '#ABA1C0', '#FFC400', '#D53678', '#00B68F'];
 
 const useForceUpdate = () => {
   const [, setState] = useState();
@@ -27,56 +26,20 @@ const useForceUpdate = () => {
 
 const Editor = () => {
   const rectangles = useRef([]);
-  const addid = useRef(0);
-  const [image, hanldeImage] = useState('');
+  const [image, handleImage] = useState('');
+  const [sshot, takeScreenshot] = useScreenshot();
   const screenshot = useRef(null);
   const marquee = useRef(null);
   const boxes = useRef(null);
   const forceUpdate = useForceUpdate();
+  const [form] = Form.useForm();
 
   useEffect(() => {
     marquee.current.classList.add('hide');
     screenshot.current.addEventListener('pointerdown', startDrag);
   }, []);
 
-  function addInput(id) {
-        
-    var addList = document.getElementById('addlist');
-
-    if (!id) {
-        id = addid.current;
-    }
-
-    var text = document.createElement('div');
-    text.id = 'additem_' + id;
-    // text.innerHTML = "<input placeholder='" + id + "' id='i_" + id + "' type='text' value='' class='buckinput' name='items[]' onChange='renameInput("+ id +")' style='padding:5px;' /> <a href='javascript:void(0);' onclick='removeInput(" + id + ")' id='addlink_" + id + "'>Remove</a>";
-    text.innerHTML = "<input placeholder='" + id + "' id='i_" + id + "' type='text' value='' class='buckinput' name='items[]' onChange='renameInput("+ id +")' style='padding:5px;' />";
-
-    addid.current++;
-    addList.appendChild(text);
-  }
-
-  function removeInput(id) {
-    var text = document.createElement('div');
-    var item = document.getElementById(`additem_${id}`);
-
-    var addList = document.getElementById('addlist');
-
-    var rmv = addList.removeChild(item);
-  }
-
   function startDrag(ev) {
-    if (ev.button === 2) {
-      const rect = hitTest(ev.layerX, ev.layerY);
-      if (rect) {
-        // removeInput(rect.id);
-        rectangles.current.splice(rectangles.current.indexOf(rect), 1);
-        // handleInputs(rectangles);
-        redraw();
-        forceUpdate();
-      }
-      return;
-    }
     window.addEventListener('pointerup', stopDrag);
     screenshot.current.addEventListener('pointermove', moveDrag);
     marquee.current.classList.remove('hide');
@@ -84,19 +47,40 @@ const Editor = () => {
     startY = ev.layerY;
   }
 
+  const removeRectangle = index => {
+    rectangles.current.splice(index, 1);
+    redraw();
+    forceUpdate();
+  };
+
   function stopDrag(ev) {
+    const index = rectangles.current.findIndex(
+      el =>
+        el.x === marqueeRect.x &&
+        el.y === marqueeRect.y &&
+        el.width === marqueeRect.width &&
+        el.height === marqueeRect.height
+    );
+    if (index < 0) {
       marquee.current.classList.add('hide');
       window.removeEventListener('pointerup', stopDrag);
       screenshot.current.removeEventListener('pointermove', moveDrag);
-      marqueeRect.id = addid.current;
-      marqueeRect.color = colors[addid.current]
-      const newRectangle = Object.assign({}, marqueeRect);
-      rectangles.current.push(newRectangle);
-      // Add Input
-      // addInput();
-      redraw();
-      forceUpdate();
-      addid.current++;
+      if (
+        ev.target.id === 'img-document' &&
+        marqueeRect.width &&
+        marqueeRect.height &&
+        rectangles.current.length < colors.length
+      ) {
+        const newRectangle = Object.assign({}, marqueeRect);
+        rectangles.current.push(newRectangle);
+        redraw();
+        forceUpdate();
+      }
+      marqueeRect.x = 0;
+      marqueeRect.y = 0;
+      marqueeRect.width = 0;
+      marqueeRect.height = 0;
+    }
   }
 
   function moveDrag(ev) {
@@ -116,31 +100,24 @@ const Editor = () => {
     drawRect(marquee.current, marqueeRect);
   }
 
-  function hitTest(x, y) {
-    return rectangles.current.find(rect => (
-      x >= rect.x &&
-      y >= rect.y && 
-      x <= rect.x + rect.width &&
-      y <= rect.y + rect.height
-    ));
-  }
-
   function redraw() {
     boxes.current.innerHTML = '';
-    rectangles.current.forEach((data) => {
+    rectangles.current.forEach((data, index) => {
       boxes.current.appendChild(drawRect(
-        document.createElementNS("http://www.w3.org/2000/svg", 'rect'), data
+        document.createElementNS("http://www.w3.org/2000/svg", 'rect'), data, index
       ));
     });
   }
 
-  function drawRect(rect, data) {
-    const { x, y, width, height, color } = data; //
+  function drawRect(rect, data, index) {
+    const { x, y, width, height } = data; //
     rect.setAttributeNS(null, 'width', width);
     rect.setAttributeNS(null, 'height', height);
     rect.setAttributeNS(null, 'x', x);
     rect.setAttributeNS(null, 'y', y);
-    rect.setAttributeNS(null, 'style', `fill:${color}`);
+    if (index) {
+      rect.setAttributeNS(null, 'style', `fill:${colors[index]}`);
+    }
     return rect;
   }
 
@@ -156,6 +133,12 @@ const Editor = () => {
     return isJpgOrPng && isLt2M;
   }
 
+  async function dataUrlToFile(dataUrl){
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    return new File([blob], 'image.png', { type: 'image/png' });
+  }
+
   function getBase64(img, callback) {
     const reader = new FileReader();
     reader.addEventListener('load', () => callback(reader.result));
@@ -165,7 +148,7 @@ const Editor = () => {
   const handleChange = info => {
     if (info.file.status === 'done') {
       getBase64(info.file.originFileObj, imageUrl => {
-        hanldeImage(imageUrl);
+        handleImage(imageUrl);
       });
     }
   };
@@ -176,12 +159,34 @@ const Editor = () => {
     }, 0);
   };
 
-  const InputImage = ({input}) => (
-    <div className={styles.inputImage}>
-      <div className={styles.colorPreview} style={{backgroundColor: input.color}} />
-      <Input size="large" className={styles.input} />
-    </div>
-  );
+  const save = async () => {
+    const values = await form.validateFields();
+    const {title, description, reward, version} = values;
+    if (title?.length && description?.length && reward?.length && version?.length) {
+      if (image.length) {
+        if (rectangles.current.length) {
+          let status = true;
+          rectangles.current.map(rect => {
+            if (!rect.name.length) {
+              status = false;
+            }
+          });
+          if (status) {
+            const newImage = await takeScreenshot(screenshot.current);
+            const newFile = await dataUrlToFile(newImage);
+          } else {
+            Modal.error({title: 'Label without name',  content: 'Add a name to every label created'});
+          }
+        } else {
+          Modal.error({title: 'Empty labels',  content: 'There aren\'t labels created'});
+        }
+      } else {
+        Modal.error({title: 'Empty image',  content: 'There is no image to label'});
+      }
+    } else {
+      Modal.error({title: 'Incomplete fields',  content: 'Complete every field to continue'});
+    }
+  };
 
   return (
     <div className={styles.editor}>
@@ -190,8 +195,8 @@ const Editor = () => {
         <Form
           name="campaign"
           initialValues={{ remember: true }}
-          // onFinish={onFinish}
-          // onFinishFailed={onFinishFailed}
+          form={form}
+          onFinish={save}
           colon={false}
           requiredMark={false}
           layout="vertical"
@@ -274,34 +279,21 @@ const Editor = () => {
           </Row>
           <Row>
             <Col span={24}>
-              {/* !image.length ? (
-                <div className={styles.previewImage}>
-                  <span className="material-icons-round">
-                    collections
-                  </span>
+              <div className={cx(styles.previewImage, {hide: image.length})}>
+                <span className="material-icons-round">
+                  collections
+                </span>
+              </div>
+              <div className={cx(styles.imageWrapper, {[styles.noMarginBottom]: !image.length})}>
+                <div className={styles.image} id="screenshot" ref={screenshot}>
+                  <img id="img-document" src={image} alt="" draggable={false} />
+                  <svg id="draw" className={styles.draw} xmlns="http://www.w3.org/2000/svg">
+                    <rect id="marquee" ref={marquee} className={styles.marquee} x="0" y="0" width="0" height="0" />
+                    <g id="boxes" ref={boxes} className={styles.boxes}></g>
+                  </svg>
                 </div>
-              ) : (
-                <div className={styles.imageWrapper}>
-                  <div className={styles.image}>
-                    <img src={image} alt="" draggable={false} />
-                    <svg id="draw" className={styles.draw} xmlns="http://www.w3.org/2000/svg">
-                      <rect id="marquee" className={styles.marquee} x="0" y="0" width="0" height="0" />
-                      <g id="boxes"></g>
-                    </svg>
-                  </div>
-                  <script async src="../utils/widget.js"></script>
-                </div>
-              ) */}
-              <div className={styles.imageWrapper}>
-                  <div className={styles.image} id="screenshot" ref={screenshot}>
-                    <img src={image} alt="" draggable={false} />
-                    <svg id="draw" className={styles.draw} xmlns="http://www.w3.org/2000/svg">
-                      <rect id="marquee" ref={marquee} className={styles.marquee} x="0" y="0" width="0" height="0" />
-                      <g id="boxes" ref={boxes} className={styles.boxes}></g>
-                    </svg>
-                  </div>
-                </div>
-              <div className={styles.feedbackWrap}>
+              </div>
+              <div className={cx(styles.feedbackWrap, {[styles.noMarginTop]: !image.length})}>
                 <Feedback className={styles.feedbackIcon} />
                 <span className={styles.feedback}>
                   Draw a rectangle over the part of the image you need get the information
@@ -313,10 +305,42 @@ const Editor = () => {
           <Row>
             <Col span={24}>
               <div className={styles.inputs}>
-                {rectangles.current.map(input => (
-                  <InputImage key={Math.random()} input={input} />
+                {rectangles.current.map((input, index) => (
+                  <div key={index.toString()} className={styles.inputImage}>
+                    <div className={styles.colorPreview} style={{backgroundColor: colors[index]}} />
+                    <Input
+                      size="large"
+                      className={cx(styles.input, styles.inputList)}
+                      value={rectangles.current[index].name}
+                      onChange={e => {
+                        rectangles.current[index].name = e.target.value;
+                        forceUpdate();
+                      }}
+                    />
+                    <div className={styles.remove} onClick={() => removeRectangle(index)}>
+                      <span className="material-icons-round">
+                        remove
+                      </span>
+                    </div>
+                  </div>
                 ))}
               </div>
+            </Col>
+          </Row>
+          <Row>
+            <Col span={24}>
+              <Form.Item className={styles.itemSubmit}>
+                <Button
+                  type="primary"
+                  size="large"
+                  htmlType="submit"
+                  className={styles.submit}>
+                  Create Campaign
+                  <span className="material-icons-round">
+                    add
+                  </span>
+                </Button>
+              </Form.Item>
             </Col>
           </Row>
         </Form>

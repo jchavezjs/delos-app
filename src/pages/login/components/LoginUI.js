@@ -14,7 +14,7 @@ import {ReactComponent as SquareLightPurple} from '../assets/squareLightPurple.s
 import {ReactComponent as SquareOrange} from '../assets/squareOrange.svg';
 import styles from '../styles/LoginUI.module.css';
 
-const LoginUI = ({login}) => (
+const LoginUI = ({login, sending, form}) => (
   <div className={styles.login}>
     <Row>
       <Col lg={14}>
@@ -26,11 +26,11 @@ const LoginUI = ({login}) => (
             </span>
             <Form
               name="basic"
-              initialValues={{ remember: true }}
               onFinish={login}
               onFinishFailed={login}
               colon={false}
               requiredMark={false}
+              form={form}
               layout="vertical"
               autoComplete="off"
             >
@@ -56,6 +56,7 @@ const LoginUI = ({login}) => (
                   block
                   size="large"
                   htmlType="submit"
+                  loading={sending}
                   className={styles.submit}>
                   Log In
                 </Button>
