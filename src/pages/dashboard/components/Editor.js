@@ -490,7 +490,7 @@ const Editor = ({mode, campaign, renewInfo}) => {
           closable={false}
           onClose={() => handleCreateBatch(false)}
           className={styles.drawer}
-          width={500}
+          width={650}
           visible={createBatch}>
           <CreateBatch close={() => handleCreateBatch(false)} campaign={campaign} renewInfo={renewInfo} />
         </Drawer>

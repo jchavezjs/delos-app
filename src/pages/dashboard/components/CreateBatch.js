@@ -1,6 +1,6 @@
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Upload, message, Row, Col, Button} from 'antd';
+import {Upload, message, Row, Col, Button, Input} from 'antd';
 import produce from 'immer';
 import cx from 'classnames';
 import {ReactComponent as Feedback} from '../assets/feedback.svg';
@@ -10,6 +10,7 @@ import Snippet from '../assets/Snippet.png';
 import styles from '../styles/CreateBatch.module.css';
 
 const {Dragger} = Upload;
+const {TextArea} = Input;
 
 const CreateBatch = ({close, campaign, renewInfo}) => {
   const [images, handleImages] = useState([]);
@@ -119,6 +120,21 @@ const CreateBatch = ({close, campaign, renewInfo}) => {
     handleSending(false);
   };
 
+  const code = `const axios = require(‘axios’);
+
+  var config = {
+    method: 'post',
+    url: 'https://delos-on.herokuapp.com/v1/batch',
+    headers: {
+      Authorization: 'Bearer ${localStorage.getItem('delos_user')}'
+    },
+    data: {
+      id: ${user.id},
+      id_campaign: ${campaign.id},
+      task: (Your file),
+    }
+  };`;
+
 
   return (
     <div className={styles.createBatch}>
@@ -182,7 +198,16 @@ const CreateBatch = ({close, campaign, renewInfo}) => {
         <span className={cx(styles.description, styles.descriptionAPi)}>
           You can use our API in order to add more tasks on the fly.
         </span>
-        <img src={Snippet} alt="" className={styles.snippet} />
+        <div className={styles.codeWrap}>
+        <pre className={styles.code}>
+{code}
+        </pre>
+        <div className={styles.copyWrap} onClick={() => {navigator.clipboard.writeText(code);}}>
+          <span className="material-icons-round">
+            content_copy
+          </span>
+        </div>
+        </div>
       </div>
     </div>
   );

@@ -148,3 +148,28 @@
   width: 100%;
   margin-top: 20px;
 }
+
+.code {
+  background-color: #292c33;
+  padding: 15px;
+  color: white;
+  margin-top: 20px;
+  border-radius: 8px;
+  overflow-x: scroll;
+}
+
+.codeWrap {
+  position: relative;
+}
+
+.copyWrap {
+  position: absolute;
+  padding: 15px;
+  top: 0;
+  right: 0;
+  cursor: pointer;
+}
+
+.copyWrap :global(.material-icons-round) {
+  color: #707070;
+}
