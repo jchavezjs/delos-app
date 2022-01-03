@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import {useDispatch} from 'react-redux';
 import {Form, message} from 'antd';
 import {signIn} from '../../redux/slices/user';
 import LoginUI from './components/LoginUI';
@@ -13,12 +13,16 @@ const Login = () => {
     handleSending(true);
     try {
       const {email, password} = await form.validateFields();
-      const response = await dispatch(signIn(email, password));
-      if (response.status === 'success') {
-      } else if (response.type === 'not-found') {
-        message.error('Wrong credentials');
+      if (email.length && password.length) {
+        const response = await dispatch(signIn(email, password));
+        if (response.status === 'success') {
+        } else if (response.type === 'not-found') {
+          message.error('Wrong credentials');
+        } else {
+          message.error('Try again later!');
+        }
       } else {
-        message.error('Try again later!');
+        message.error('Fill every field required');
       }
     } catch (errorInfo) {
       message.error('Try again later!');

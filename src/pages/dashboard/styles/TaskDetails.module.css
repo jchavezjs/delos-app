@@ -1,0 +1,93 @@
+.taskDetails {
+  background-color: var(--background);
+  height: 100vh;
+  overflow-y: scroll;
+  padding: 30px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+}
+
+.close {
+  height: 35px;
+  width: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--purple);
+  color: white;
+  font-size: 20px;
+  margin-right: 25px;
+  cursor: pointer;
+}
+
+.title {
+  font-family: Gilroy;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 30px;
+}
+
+.description {
+  display: block;
+  margin-top: 40px;
+  color: var(--purple);
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  margin-top: 300px;
+}
+
+.details {
+  margin-top: 40px;
+}
+
+.detail {
+  background-color: white;
+  padding: 20px;
+}
+
+.photo {
+  aspect-ratio: 1;
+  background-color: var(--background);
+}
+
+.labelMain,
+.valueMain {
+  display: block;
+  text-align: right;
+}
+
+.labelMain {
+  color: var(--lightPurple);
+  margin-bottom: 3px;
+}
+
+.valueMain {
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.detailRow {
+  margin-bottom: 20px;
+}
+
+.detailRow:last-child {
+  margin-bottom: 0;
+}
+
+.itemLabel {
+}
+
+.wrapValue {
+  background-color: var(--background);
+  height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  margin-top: 10px;
+}

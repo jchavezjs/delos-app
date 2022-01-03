@@ -9,7 +9,7 @@ const initialState = {
 }
 
 export const userSlice = createSlice({
-  name: 'counter',
+  name: 'user',
   initialState,
   reducers: {
     setInfo: (state, action) => {
@@ -25,14 +25,14 @@ export const signIn = (email, password) => async dispatch => {
   try {
     const response = await login(email, password);
     if (!response.error && response.status === 200) {
-      const {token} = response.data;
-      await localStorage.setItem('delos_user', token);
-      dispatch(setInfo(jwt_decode(token)));
-      return {
-        status: 'success',
-      };
-    }
-    if (response.error?.response?.status === 401) {
+      if (response.data.token) {
+        const {token} = response.data;
+        await localStorage.setItem('delos_user', token);
+        dispatch(setInfo(jwt_decode(token)));
+        return {
+          status: 'success',
+        };
+      }
       return {
         status: 'error',
         type: 'not-found'
@@ -50,5 +50,11 @@ export const signIn = (email, password) => async dispatch => {
   }
 };
 
+export const logout = () => dispatch => {
+  localStorage.removeItem('delos_user');
+  dispatch(setInfo(null));
+};
+
+export const selectUser = state => state.user.info;
 
 export default userSlice.reducer;

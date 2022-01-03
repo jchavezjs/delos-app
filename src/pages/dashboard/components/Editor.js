@@ -1,8 +1,23 @@
 import {useState, useEffect, useRef} from 'react';
-import {Form, Input, Button, Row, Col, Upload, message, Modal} from 'antd';
+import {
+  Form,
+  Input,
+  Button,
+  Row,
+  Col,
+  Upload,
+  message,
+  Modal,
+  Drawer,
+} from 'antd';
+import {useDispatch, useSelector} from 'react-redux';
 import {useScreenshot} from 'use-react-screenshot';
 import cx from 'classnames';
 import {ReactComponent as Feedback} from '../assets/feedback.svg';
+import {createCampaign} from '../../../redux/slices/campaigns';
+import {selectUser} from '../../../redux/slices/user';
+import CreateBatch from './CreateBatch';
+import TaskDetails from './TaskDetails';
 import styles from '../styles/Editor.module.css';
 
 const {TextArea} = Input;
@@ -17,27 +32,60 @@ const marqueeRect = {
   name: '',
 };
 
-const colors = ['#3C138E', '#ABA1C0', '#FFC400', '#D53678', '#00B68F'];
+const colors = [
+  '#2C1361',
+  '#FFC400',
+  '#D53678',
+  '#6223E2',
+  '#00B68F',
+  '#FCB0B3',
+  '#6ACCC2',
+  '#FF5345',
+  '#ABA1C0',
+  '#178DC1',
+  '#00BAFF',
+  '#303EDE',
+  '#F0EFF7'
+];
 
 const useForceUpdate = () => {
   const [, setState] = useState();
   return () => setState({});
 }
 
-const Editor = () => {
+const Editor = ({mode, campaign, renewInfo}) => {
+  const isNew = mode === 'new';
+  const [createBatch, handleCreateBatch] = useState(false);
+  const [taskDetails, handleTaskDetails] = useState(false);
+  const [task, handleTask] = useState(null);
   const rectangles = useRef([]);
   const [image, handleImage] = useState('');
+  const [sending, handleSending] = useState(false);
   const [sshot, takeScreenshot] = useScreenshot();
   const screenshot = useRef(null);
   const marquee = useRef(null);
   const boxes = useRef(null);
   const forceUpdate = useForceUpdate();
+  const user =  useSelector(selectUser);
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
 
   useEffect(() => {
-    marquee.current.classList.add('hide');
-    screenshot.current.addEventListener('pointerdown', startDrag);
-  }, []);
+    rectangles.current = [];
+    if (isNew) {
+      marquee.current.classList.add('hide');
+      screenshot.current.addEventListener('pointerdown', startDrag);
+      handleImage('');
+      form.resetFields();
+    } else {
+      form.setFieldsValue({
+        title: campaign.info.title,
+        version: campaign.info.version || 1, 
+        reward: campaign.info.reward, 
+        description: campaign.info.description, 
+      });
+    }
+  }, [campaign]);
 
   function startDrag(ev) {
     window.addEventListener('pointerup', stopDrag);
@@ -159,7 +207,13 @@ const Editor = () => {
     }, 0);
   };
 
+  const selectBatch = selectedBatch => {
+    handleTask(selectedBatch);
+    handleTaskDetails(true);
+  };
+
   const save = async () => {
+    handleSending(true);
     const values = await form.validateFields();
     const {title, description, reward, version} = values;
     if (title?.length && description?.length && reward?.length && version?.length) {
@@ -174,6 +228,27 @@ const Editor = () => {
           if (status) {
             const newImage = await takeScreenshot(screenshot.current);
             const newFile = await dataUrlToFile(newImage);
+            const data = rectangles.current.map((rect, index) => (
+              {
+                name: rect.name,
+                color: colors[index],
+              }
+            ));
+            const info = new FormData();
+            info.append('id', user.id);
+            info.append('title', title);
+            info.append('description', description);
+            info.append('reward', reward);
+            info.append('version', version);
+            info.append('data', JSON.stringify(data));
+            info.append('example_task', newFile);
+            const response = await dispatch(createCampaign(info));
+            if (response.status === 'success') {
+              await renewInfo();
+              message.success('Campign created successfully');
+            } else {
+              message.error('Try again later');
+            }
           } else {
             Modal.error({title: 'Label without name',  content: 'Add a name to every label created'});
           }
@@ -186,11 +261,14 @@ const Editor = () => {
     } else {
       Modal.error({title: 'Incomplete fields',  content: 'Complete every field to continue'});
     }
+    handleSending(false);
   };
 
   return (
     <div className={styles.editor}>
-      <h1 className={styles.title}>New Campaign</h1>
+      <h1 className={styles.title}>
+        {isNew ? 'New Campaign' : 'Detail'}
+      </h1>
       <div className={styles.form}>
         <Form
           name="campaign"
@@ -212,7 +290,7 @@ const Editor = () => {
                 }
                 name="title"
               >
-                <Input size="large" className={styles.input} />
+                <Input disabled={!isNew} size="large" className={styles.input} />
               </Form.Item>
             </Col>
             <Col flex="100px">
@@ -224,7 +302,7 @@ const Editor = () => {
                 }
                 name="version"
               >
-                <Input size="large" className={styles.input} />
+                <Input size="large" disabled={!isNew} className={styles.input} />
               </Form.Item>
             </Col>
             <Col flex="120px">
@@ -236,7 +314,7 @@ const Editor = () => {
                 }
                 name="reward"
               >
-                <Input size="large" className={styles.input} />
+                <Input size="large" disabled={!isNew} className={styles.input} />
               </Form.Item>
             </Col>
           </Row>
@@ -250,100 +328,181 @@ const Editor = () => {
                 }
                 name="description"
               >
-                <TextArea rows={4} className={styles.textArea} />
+                <TextArea disabled={!isNew} rows={4} className={styles.textArea} />
               </Form.Item>
             </Col>
           </Row>
+          {isNew && (
+            <Row>
+              <Col span={24}>
+                <div className={styles.addImageWrap}>
+                  <span className={styles.label}>
+                    Add new image to be processed
+                  </span>
+                  <Upload
+                    name="image"
+                    customRequest={dummyRequest}
+                    beforeUpload={beforeUpload}
+                    maxCount={1}
+                    showUploadList={false}
+                    onChange={handleChange}>
+                    <Button size="large" className={styles.addImage} type="primary">
+                      Add Image
+                      <span className="material-icons-round">
+                        add
+                      </span>
+                    </Button>
+                  </Upload>
+                </div>
+              </Col>
+            </Row>
+          )}
           <Row>
             <Col span={24}>
-              <div className={styles.addImageWrap}>
-                <span className={styles.label}>
-                  Add new image to be processed
-                </span>
-                <Upload
-                  name="image"
-                  customRequest={dummyRequest}
-                  beforeUpload={beforeUpload}
-                  maxCount={1}
-                  showUploadList={false}
-                  onChange={handleChange}>
-                  <Button size="large" className={styles.addImage} type="primary">
-                    Add Image
-                    <span className="material-icons-round">
-                      add
-                    </span>
-                  </Button>
-                </Upload>
-              </div>
-            </Col>
-          </Row>
-          <Row>
-            <Col span={24}>
-              <div className={cx(styles.previewImage, {hide: image.length})}>
+              <div className={cx(styles.previewImage, {hide: image.length || !isNew})}>
                 <span className="material-icons-round">
                   collections
                 </span>
               </div>
-              <div className={cx(styles.imageWrapper, {[styles.noMarginBottom]: !image.length})}>
-                <div className={styles.image} id="screenshot" ref={screenshot}>
-                  <img id="img-document" src={image} alt="" draggable={false} />
-                  <svg id="draw" className={styles.draw} xmlns="http://www.w3.org/2000/svg">
-                    <rect id="marquee" ref={marquee} className={styles.marquee} x="0" y="0" width="0" height="0" />
-                    <g id="boxes" ref={boxes} className={styles.boxes}></g>
-                  </svg>
-                </div>
-              </div>
-              <div className={cx(styles.feedbackWrap, {[styles.noMarginTop]: !image.length})}>
-                <Feedback className={styles.feedbackIcon} />
-                <span className={styles.feedback}>
-                  Draw a rectangle over the part of the image you need get the information
-                  to and we will automatically categorize the data of your images.
-                </span>
-              </div>
-            </Col>
-          </Row>
-          <Row>
-            <Col span={24}>
-              <div className={styles.inputs}>
-                {rectangles.current.map((input, index) => (
-                  <div key={index.toString()} className={styles.inputImage}>
-                    <div className={styles.colorPreview} style={{backgroundColor: colors[index]}} />
-                    <Input
-                      size="large"
-                      className={cx(styles.input, styles.inputList)}
-                      value={rectangles.current[index].name}
-                      onChange={e => {
-                        rectangles.current[index].name = e.target.value;
-                        forceUpdate();
-                      }}
-                    />
-                    <div className={styles.remove} onClick={() => removeRectangle(index)}>
-                      <span className="material-icons-round">
-                        remove
-                      </span>
-                    </div>
+              {isNew ? (
+                <div className={cx(styles.imageWrapper, {[styles.noMarginBottom]: !image.length})}>
+                  <div className={styles.image} id="screenshot" ref={screenshot}>
+                    <img id="img-document" src={image} alt="" draggable={false} />
+                    <svg id="draw" className={styles.draw} xmlns="http://www.w3.org/2000/svg">
+                      <rect id="marquee" ref={marquee} className={styles.marquee} x="0" y="0" width="0" height="0" />
+                      <g id="boxes" ref={boxes} className={styles.boxes}></g>
+                    </svg>
                   </div>
-                ))}
-              </div>
+                </div>
+              ) : (
+                <div className={cx(styles.imageWrapper, {[styles.noMarginBottom]: false})}>
+                  <img src={campaign.info.example_task.image_url} alt="" className={styles.createdPhoto} />
+                </div>
+              )}
+              {isNew && (
+                <div className={cx(styles.feedbackWrap, {[styles.noMarginTop]: !image.length})}>
+                  <Feedback className={styles.feedbackIcon} />
+                  <span className={styles.feedback}>
+                    Draw a rectangle over the part of the image you need get the information
+                    to and we will automatically categorize the data of your images.
+                  </span>
+                </div>
+              )}
             </Col>
           </Row>
+          {isNew ? (
+            <Row>
+              <Col span={24}>
+                <div className={styles.inputs}>
+                  {rectangles.current.map((input, index) => (
+                    <div key={index.toString()} className={styles.inputImage}>
+                      <div className={styles.colorPreview} style={{backgroundColor: colors[index]}} />
+                      <Input
+                        size="large"
+                        className={cx(styles.input, styles.inputList)}
+                        value={rectangles.current[index].name}
+                        onChange={e => {
+                          rectangles.current[index].name = e.target.value;
+                          forceUpdate();
+                        }}
+                      />
+                      <div className={styles.remove} onClick={() => removeRectangle(index)}>
+                        <span className="material-icons-round">
+                          remove
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Col>
+            </Row>
+          ) : (
+            <Row>
+              <Col span={24}>
+                <span className={styles.batchesTitle}>
+                  {`Batches (${campaign.batches.length})`}
+                </span>
+                <div className={styles.inputs}>
+                  {campaign.batches.map(batch => (
+                    <div key={batch.batch_id.toString()} className={styles.inputImage}>
+                      {/* <div className={styles.colorPreview} style={{backgroundColor: colors[index]}} /> */}
+                      <div className={styles.squareBatch} />
+                      <div className={styles.progressWrap}>
+                        <div
+                          className={styles.progress}
+                          style={{width: `${(batch.tasks_done * 100) / batch.num_tasks}%`}}
+                        />
+                        <span className={styles.progressNumber}>
+                          {`${batch.tasks_done} / ${batch.num_tasks} left`}
+                        </span>
+                      </div>
+                      <Button
+                        type="primary"
+                        size="large"
+                        onClick={() => selectBatch(batch)}
+                        className={cx(styles.submit, styles.tasks)}>
+                        Task Results
+                        <span className="material-icons-round">
+                          query_stats
+                        </span>
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </Col>
+            </Row>
+          )}
           <Row>
             <Col span={24}>
-              <Form.Item className={styles.itemSubmit}>
-                <Button
-                  type="primary"
-                  size="large"
-                  htmlType="submit"
-                  className={styles.submit}>
-                  Create Campaign
-                  <span className="material-icons-round">
-                    add
-                  </span>
-                </Button>
-              </Form.Item>
+                {isNew ? (
+                  <Form.Item className={styles.itemSubmit}>
+                    <Button
+                      type="primary"
+                      size="large"
+                      htmlType="submit"
+                      loading={sending}
+                      className={styles.submit}>
+                      Create Campaign
+                      <span className="material-icons-round">
+                        add
+                      </span>
+                    </Button>
+                  </Form.Item>
+                ) : (
+                  <div className={styles.itemSubmit}>
+                    <Button
+                      type="primary"
+                      size="large"
+                      onClick={() => handleCreateBatch(true)}
+                      className={styles.submit}>
+                      Create Batch
+                      <span className="material-icons-round">
+                        add
+                      </span>
+                    </Button>
+                  </div>
+                )}
             </Col>
           </Row>
         </Form>
+        <Drawer
+          destroyOnClose
+          closable={false}
+          onClose={() => handleCreateBatch(false)}
+          className={styles.drawer}
+          width={500}
+          visible={createBatch}>
+          <CreateBatch close={() => handleCreateBatch(false)} campaign={campaign} renewInfo={renewInfo} />
+        </Drawer>
+        <Drawer
+          destroyOnClose
+          closable={false}
+          onClose={() => handleTaskDetails(false)}
+          className={styles.drawer}
+          width={650}
+          visible={taskDetails}>
+          <TaskDetails close={() => handleTaskDetails(false)} campaign={campaign} task={task} />
+        </Drawer>
       </div>
     </div>
   );

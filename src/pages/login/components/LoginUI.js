@@ -37,7 +37,7 @@ const LoginUI = ({login, sending, form}) => (
               <Form.Item
                 label={<span className={styles.label}>Email</span>}
                 name="email"
-                required
+                required={false}
               >
                 <Input size="large" className={styles.input} />
               </Form.Item>
@@ -45,7 +45,7 @@ const LoginUI = ({login, sending, form}) => (
               <Form.Item
                 label={<span className={styles.label}>Password</span>}
                 name="password"
-                required
+                required={false}
               >
                 <Input.Password size="large" className={styles.input} />
               </Form.Item>

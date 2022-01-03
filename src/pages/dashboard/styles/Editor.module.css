@@ -23,14 +23,16 @@
 }
 
 .input {
-  color: var(--secondPurple);
+  color: var(--secondPurple) !important;
   border: none;
   height: 45px;
+  background-color: white !important;
 }
 
 .textArea {
-  color: var(--secondPurple);
+  color: var(--secondPurple) !important;
   border: none;
+  background-color: white !important;
 }
 
 .addImage {
@@ -186,4 +188,62 @@
 .submit:focus {
   background-color: var(--green);
   border-color: var(--green);
+}
+
+.createdPhoto {
+  width: 80%;
+}
+
+.batchesTitle {
+  color: var(--purple);
+  font-weight: 700;
+  font-family: Gilroy;
+  font-size: 24px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.squareBatch {
+  height: 45px;
+  width: 45px;
+  background-color: var(--purple);
+  margin-right: 10px;
+}
+
+.progressWrap {
+  flex: 1;
+  background-color: white;
+  height: 45px;
+  position: relative;
+  align-items: center;
+  display: flex;
+}
+
+.progress {
+  background-color: var(--lightPurple);
+  height: 100%;
+}
+
+.progressNumber {
+  position: absolute;
+  left: 15px;
+  color: var(--purple);
+  font-weight: 700;
+}
+
+.tasks {
+  margin-left: 10px;
+  width: 157.68px;
+  background-color: var(--yellow);
+  border-color: var(--yellow);
+}
+
+.tasks:hover,
+.tasks:focus {
+  background-color: var(--yellow);
+  border-color: var(--yellow);
+}
+
+.drawer :global(.ant-drawer-body) {
+  padding: 0;
 }

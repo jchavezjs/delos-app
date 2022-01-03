@@ -1,0 +1,150 @@
+.createBatch {
+  background-color: var(--background);
+  height: 100vh;
+  overflow-y: scroll;
+  padding: 30px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+}
+
+.close {
+  height: 35px;
+  width: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--purple);
+  color: white;
+  font-size: 20px;
+  margin-right: 25px;
+  cursor: pointer;
+}
+
+.title {
+  font-family: Gilroy;
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 30px;
+}
+
+.description {
+  display: block;
+  margin-top: 40px;
+  color: var(--purple);
+}
+
+.dragger {
+  border-color: #dadada !important;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.dragger :global(.ant-upload-text) {
+  font-weight: 700;
+  color: var(--purple) !important;
+  margin-bottom: 5px;
+  margin-top: 20px;
+}
+
+.dragger :global(.ant-upload-hint) {
+  color: var(--lightPurple) !important;
+}
+
+.dragger :global(.material-icons-round) {
+  color: var(--lightPurple) !important;
+  font-size: 50px;
+}
+
+.uploader {
+  margin-bottom: 30px;
+}
+
+.preview {
+  aspect-ratio: 1;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.remove {
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--pink);
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  color: white;
+  cursor: pointer;
+}
+
+.remove :global(.material-icons-round) {
+  font-size: 18px;
+}
+
+.itemSubmit {
+  margin-bottom: 0;
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.submit {
+  background-color: var(--green);
+  border-color: var(--green);
+  font-weight: 700;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.submit:hover,
+.submit:focus {
+  background-color: var(--green);
+  border-color: var(--green);
+}
+
+.submit :global(.material-icons-round) {
+  font-size: 18px;
+  margin-left: 10px;
+}
+
+.listImgs {
+  margin-bottom: 40px;
+}
+
+.feedbackWrap {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  color: var(--purple);
+}
+
+.feedbackIcon {
+  margin-top: -7px;
+  margin-right: 10px;
+}
+
+.apiWrap {
+  margin: -30px;
+  padding: 30px;
+  border-top: 1px dashed var(--lightPurple);
+  margin-top: 20px;
+}
+
+.descriptionAPi {
+  margin-top: 15px;
+}
+
+.snippet {
+  width: 100%;
+  margin-top: 20px;
+}

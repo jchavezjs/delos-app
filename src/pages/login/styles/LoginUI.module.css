@@ -153,17 +153,17 @@
 }
 
 .submit {
-  background-color: var(--pink);
-  border-color: var(--pink);
-  height: 55px;
+  background-color: var(--pink) !important;
+  border-color: var(--pink) !important;
+  height: 55px !important;
   margin-top: 20px;
-  font-weight: 700;
+  font-weight: 700 !important;
 }
 
 .submit:hover,
 .submit:focus {
-  background-color: rgba(213, 54, 120, 0.8);
-  border-color: rgba(213, 54, 120, 0.8);
+  background-color: rgba(213, 54, 120, 0.8) !important;
+  border-color: rgba(213, 54, 120, 0.8) !important;
 }
 
 .social {

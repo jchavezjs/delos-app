@@ -1,26 +1,15 @@
 import React from 'react';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from 'react-router-dom';
 import {store} from './redux/store';
 import {Provider} from 'react-redux';
 import ReactDOM from 'react-dom';
 import './index.less';
-import Dashboard from './pages/dashboard/Main';
-import Login from './pages/login/Main';
+import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <Router>
-        <Routes>
-          <Route path="/*" element={<Dashboard />} />
-          <Route path="/login" element={<Login />} />
-        </Routes>
-      </Router>
+      <App />
     </Provider>
   </React.StrictMode>,
   document.getElementById('root')
