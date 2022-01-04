@@ -5,6 +5,7 @@ import {
   newImage,
   newBatch,
   getDetails,
+  getBatches,
 } from '../../api/Campaign';
 
 export const campaignsSlice = createSlice({
@@ -16,11 +17,16 @@ export const campaignsSlice = createSlice({
     setCampaigns: (state, action) => {
       state.campaigns = action.payload;
     },
+    setBatches: (state, action) => {
+      const {campaign, batches} = action.payload;
+      const index = state.campaigns.findIndex(el => el.id === campaign);
+      state.campaigns[index].batches = batches;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {setCampaigns} = campaignsSlice.actions;
+export const {setCampaigns, setBatches} = campaignsSlice.actions;
 
 export const myCampaigns = user => async dispatch => {
   try {
@@ -116,6 +122,29 @@ export const getBatchDetails = (user, batch) => async () => {
       return {
         status: 'success',
         details: response.data.results,
+      };
+    }
+    return {
+      status: 'error',
+      type: 'unkown'
+    };
+  } catch (e) {
+    return {
+      status: 'error',
+      type: 'unknown',
+    };
+  }
+};
+
+export const getCampaignBatches = (user, campaign) => async dispatch => {
+  try {
+    const response = await getBatches(user, campaign);
+    if (!response.error && response.status === 200) {
+      const {batches} = response.data;
+      dispatch(setBatches({campaign, batches}));
+      return {
+        status: 'success',
+        batches,
       };
     }
     return {

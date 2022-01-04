@@ -18,6 +18,7 @@ const DashboardUI = props => {
     renewInfo,
     searchVal,
     searchCampaign,
+    userDetails,
   } = props;
 
   const menu = (
@@ -66,6 +67,7 @@ const DashboardUI = props => {
         <Col span={24}>
           <div className={styles.header}>
             <Logo className={styles.logo} />
+            <span>{userDetails.vAccountRows ? userDetails.vAccountRows[0].balance.quantity : ''}</span>
             <Dropdown overlay={menu} placement="bottomRight">
               <div className={styles.accountWrap}>
                 <span className={styles.account}>
@@ -112,6 +114,7 @@ const DashboardUI = props => {
               </Button>
             </div>
             {getContent()}
+            <span className={styles.disclaimer}>Made with ❤️ in <span className={styles.strong}>El Salvador</span>.</span>
           </div>
         </Col>
         <Col span={12} className={styles.editor}>

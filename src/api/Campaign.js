@@ -68,3 +68,14 @@ export const getDetails = async (user, batch) => {
   return data;
 };
 
+export const getBatches = async (user, campaign) => {
+  const request = await instance();
+  let data = await request
+    .get(`/batch/${user}/${campaign}`)
+    .catch((error) => {
+      return {
+        error,
+      };
+    });
+  return data;
+};

@@ -1,8 +1,9 @@
 import {useEffect, useState, useCallback} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {message} from 'antd';
-import {logout, selectUser} from '../../redux/slices/user';
-import {myCampaigns, selectCampaigns} from '../../redux/slices/campaigns';
+import produce from 'immer';
+import {logout, selectUser, getUserDetails, selectUserDetails} from '../../redux/slices/user';
+import {myCampaigns, selectCampaigns, getCampaignBatches} from '../../redux/slices/campaigns';
 import DashboardUI from './components/DashboardUI';
 
 const Dashboard = () => {
@@ -12,6 +13,7 @@ const Dashboard = () => {
   const [mode, handleMode] = useState('empty');
   const [searchVal, handleSearchVal] = useState('');
   const user =  useSelector(selectUser);
+  const userDetails =  useSelector(selectUserDetails);
   const campaigns = useSelector(selectCampaigns);
   const dispatch = useDispatch();
 
@@ -30,17 +32,23 @@ const Dashboard = () => {
   }, [dispatch, user.id]);
 
   useEffect(() => {
-    const verifySession = () => {
+    const verifySession = async () => {
       const exp = user.exp;
       const actual = Math.floor(Date.now() / 1000);
       if (parseInt(actual, 10) > parseInt(exp, 10)) {
         closeSession();
       } else {
-        initialFetch();
+        await initialFetch();
+        await dispatch(getUserDetails(user.id));
       }
     };
     verifySession();
-  }, [closeSession, initialFetch, user.exp]);
+  }, [closeSession, dispatch, initialFetch, user.exp, user.id]);
+
+  useEffect(() => {
+    handleResults(campaigns);
+    handleSearchVal('');
+  }, [campaigns]);
 
   const selectCampaign = selected => {
     handleMode('edit');
@@ -52,17 +60,27 @@ const Dashboard = () => {
     handleCampaign(null);
   };
 
-  const renewInfo = async () => {
-    const response = await dispatch(myCampaigns(user.id));
-    if (response.status === 'success') {
-      if (mode === 'new') {
-        handleCampaign(response.campaigns[0]);
-        handleMode('edit');
-      } else {
-        const index = response.campaigns.findIndex(el => el.di === campaign.id);
-        if (index > -1) {
-          handleCampaign(response.campaigns[index]);
+  const renewInfo = async batches => {
+    if (batches) {
+      const response = await dispatch(getCampaignBatches(user.id, campaign.id));
+      if (response.status === 'success') {
+        const newCampaign = produce(campaign, draftState => {
+          draftState.batches = response.batches;
+        });
+        handleCampaign(newCampaign);
+      }
+    } else {
+      const response = await dispatch(myCampaigns(user.id));
+      if (response.status === 'success') {
+        if (mode === 'new') {
+          handleCampaign(response.campaigns[0]);
           handleMode('edit');
+        } else {
+          const index = response.campaigns.findIndex(el => el.id === campaign.id);
+          if (index > -1) {
+            handleCampaign(response.campaigns[index]);
+            handleMode('edit');
+          }
         }
       }
     }
@@ -117,7 +135,8 @@ const Dashboard = () => {
       mode={mode}
       renewInfo={renewInfo}
       searchVal={searchVal}
-      searchCampaign={searchCampaign}
+      searchCampaign={searchCampaign}ç
+      userDetails={userDetails}
     />
   );
 }

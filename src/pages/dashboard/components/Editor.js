@@ -85,7 +85,7 @@ const Editor = ({mode, campaign, renewInfo}) => {
         description: campaign.info.description, 
       });
     }
-  }, [campaign]);
+  }, [campaign, isNew]);
 
   function startDrag(ev) {
     window.addEventListener('pointerup', stopDrag);
@@ -246,6 +246,7 @@ const Editor = ({mode, campaign, renewInfo}) => {
             if (response.status === 'success') {
               await renewInfo();
               message.success('Campign created successfully');
+              forceUpdate();
             } else {
               message.error('Try again later');
             }
@@ -439,7 +440,7 @@ const Editor = ({mode, campaign, renewInfo}) => {
                       <Button
                         type="primary"
                         size="large"
-                        onClick={() => selectBatch(batch)}
+                        onClick={() => batch.tasks_done ? selectBatch(batch) : message.error('No tasks completed!')}
                         className={cx(styles.submit, styles.tasks)}>
                         Task Results
                         <span className="material-icons-round">

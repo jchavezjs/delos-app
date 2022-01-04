@@ -22,7 +22,7 @@ const TaskDetails = ({close, task}) => {
     initialFetch();
   }, []);
 
-  const Detail = () => (
+  const Detail = ({detail}) => (
     <Col span={12}>
       <div className={styles.detail}>
         <Row gutter={10} className={styles.detailRow}>
@@ -34,7 +34,7 @@ const TaskDetails = ({close, task}) => {
               Task ID
             </span>
             <span className={styles.valueMain}>
-              9
+              {detail.id}
             </span>
           </Col>
           <Col span={10}>
@@ -42,22 +42,26 @@ const TaskDetails = ({close, task}) => {
               Account ID
             </span>
             <span className={styles.valueMain}>
-              117
+              {detail.account_id}
             </span>
           </Col>
         </Row>
-        <Row className={styles.detailRow}>
-          <Col span={24}>
-            <div className={styles.item}>
-              <span className={styles.itemLabel}>
-                Names
-              </span>
-              <div className={styles.wrapValue}>
-                <span>Jaime</span>
+        {Object.keys(detail.data).map(key => (
+          <Row className={styles.detailRow}>
+            <Col span={24}>
+              <div className={styles.item}>
+                <span className={styles.itemLabel}>
+                  {key}
+                </span>
+                <div className={styles.wrapValue}>
+                  <span>
+                    {detail.data[key]}
+                  </span>
+                </div>
               </div>
-            </div>
-          </Col>
-        </Row>
+            </Col>
+          </Row>
+        ))}
       </div>
     </Col>
   );
@@ -83,10 +87,10 @@ const TaskDetails = ({close, task}) => {
         ) : (
           <div className={styles.details}>
             <Row gutter={[20, 20]}>
-              <Detail />
-              <Detail />
+              {details.map(detail => (
+                <Detail key={detail.id} detail={detail} />
+              ))}
             </Row>
-            {JSON.stringify(details)}
           </div>
         )}
       </div>

@@ -1,16 +1,14 @@
 import {useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Upload, message, Row, Col, Button, Input} from 'antd';
+import {Upload, message, Row, Col, Button} from 'antd';
 import produce from 'immer';
 import cx from 'classnames';
 import {ReactComponent as Feedback} from '../assets/feedback.svg';
 import {uploadImage, createBatch} from '../../../redux/slices/campaigns';
 import {selectUser} from '../../../redux/slices/user';
-import Snippet from '../assets/Snippet.png';
 import styles from '../styles/CreateBatch.module.css';
 
 const {Dragger} = Upload;
-const {TextArea} = Input;
 
 const CreateBatch = ({close, campaign, renewInfo}) => {
   const [images, handleImages] = useState([]);
@@ -108,7 +106,7 @@ const CreateBatch = ({close, campaign, renewInfo}) => {
       };
       const response = await dispatch(createBatch(info));
       if (response.status === 'success') {
-        await renewInfo();
+        await renewInfo(true);
         message.success('Batch created');
         close();
       } else {
@@ -151,7 +149,6 @@ const CreateBatch = ({close, campaign, renewInfo}) => {
       </span>
       <div className={styles.uploader}>
         <Dragger
-          multiple
           className={styles.dragger}
           onChange={handleChange}
           customRequest={dummyRequest}

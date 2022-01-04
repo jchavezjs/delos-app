@@ -134,3 +134,12 @@
   width: 180px;
   margin-bottom: 5px;
 }
+
+.disclaimer {
+  color: var(--lightPurple);
+}
+
+.strong {
+  font-weight: 700;
+  color: var(--purple);
+}

@@ -14,3 +14,16 @@ export const login = async (email, password) => {
     });
   return data;
 };
+
+export const getDetails = async user => {
+  const request = await instance();
+  let data = await request
+    .get(`/user/${user}`)
+    .catch((error) => {
+      return {
+        error,
+      };
+    });
+  return data;
+};
+

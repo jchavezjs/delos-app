@@ -3,7 +3,7 @@ import axios from 'axios';
 const getInstance = async file => {
   // const baseURL = 'https://3188-190-150-219-80.ngrok.io';
   const baseURL = 'https://delos-on.herokuapp.com';
-  const timeout = 60000;
+  const timeout = 120000;
   
   const request = axios.create({
     baseURL,
