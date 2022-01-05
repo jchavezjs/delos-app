@@ -25,6 +25,12 @@ const Dashboard = () => {
     const response = await dispatch(myCampaigns(user.id));
     if (response.status === 'success') {
       handleResults(response.campaigns);
+      if (mode === 'edit') {
+        const index = response.campaigns.findIndex(el => el.id === campaign.id);
+        if (index > -1) {
+          handleCampaign(response.campaigns[index]);
+        }
+      }
     } else {
       message.error('Try again later');
     }
@@ -44,6 +50,14 @@ const Dashboard = () => {
     };
     verifySession();
   }, [closeSession, dispatch, initialFetch, user.exp, user.id]);
+
+  useEffect(() => {
+    const countup = setInterval(initialFetch, 120000);
+
+    return () => {
+      clearInterval(countup);
+    };
+  }, [initialFetch]);
 
   useEffect(() => {
     handleResults(campaigns);
