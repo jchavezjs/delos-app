@@ -268,7 +268,7 @@ const Editor = ({mode, campaign, renewInfo}) => {
   return (
     <div className={styles.editor}>
       <h1 className={styles.title}>
-        {isNew ? 'New Campaign' : 'Detail'}
+        {isNew ? 'New Campaign' : `Detail - ${campaign.id}`}
       </h1>
       <div className={styles.form}>
         <Form

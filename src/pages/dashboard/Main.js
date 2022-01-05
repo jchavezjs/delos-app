@@ -3,7 +3,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {message} from 'antd';
 import produce from 'immer';
 import {logout, selectUser, getUserDetails, selectUserDetails} from '../../redux/slices/user';
-import {myCampaigns, selectCampaigns, getCampaignBatches} from '../../redux/slices/campaigns';
+import {myCampaigns, selectCampaigns, getCampaignBatches, getLast} from '../../redux/slices/campaigns';
 import DashboardUI from './components/DashboardUI';
 
 const Dashboard = () => {
@@ -70,18 +70,10 @@ const Dashboard = () => {
         handleCampaign(newCampaign);
       }
     } else {
-      const response = await dispatch(myCampaigns(user.id));
+      const response = await dispatch(getLast(user.id));
       if (response.status === 'success') {
-        if (mode === 'new') {
-          handleCampaign(response.campaigns[0]);
-          handleMode('edit');
-        } else {
-          const index = response.campaigns.findIndex(el => el.id === campaign.id);
-          if (index > -1) {
-            handleCampaign(response.campaigns[index]);
-            handleMode('edit');
-          }
-        }
+        handleCampaign(response.campaign);
+        handleMode('edit');
       }
     }
   };

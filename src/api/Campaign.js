@@ -79,3 +79,15 @@ export const getBatches = async (user, campaign) => {
     });
   return data;
 };
+
+export const getLastCampaign = async user => {
+  const request = await instance();
+  let data = await request
+    .get(`/campaign/${user}/last`)
+    .catch((error) => {
+      return {
+        error,
+      };
+    });
+  return data;
+};

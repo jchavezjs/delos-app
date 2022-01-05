@@ -6,6 +6,7 @@ import {
   newBatch,
   getDetails,
   getBatches,
+  getLastCampaign,
 } from '../../api/Campaign';
 
 export const campaignsSlice = createSlice({
@@ -22,11 +23,14 @@ export const campaignsSlice = createSlice({
       const index = state.campaigns.findIndex(el => el.id === campaign);
       state.campaigns[index].batches = batches;
     },
+    setLast: (state, action) => {
+      state.campaigns.unshift(action.payload);
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const {setCampaigns, setBatches} = campaignsSlice.actions;
+export const {setCampaigns, setBatches, setLast} = campaignsSlice.actions;
 
 export const myCampaigns = user => async dispatch => {
   try {
@@ -145,6 +149,29 @@ export const getCampaignBatches = (user, campaign) => async dispatch => {
       return {
         status: 'success',
         batches,
+      };
+    }
+    return {
+      status: 'error',
+      type: 'unkown'
+    };
+  } catch (e) {
+    return {
+      status: 'error',
+      type: 'unknown',
+    };
+  }
+};
+
+export const getLast = user => async dispatch => {
+  try {
+    const response = await getLastCampaign(user);
+    if (!response.error && response.status === 200) {
+      const {campaign} = response.data;
+      dispatch(setLast(campaign));
+      return {
+        status: 'success',
+        campaign,
       };
     }
     return {
